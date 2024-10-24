@@ -38,4 +38,7 @@ for (i in 1:length(states)) {
   allStateRegs = rbind(allStateRegs, table)
 }
 
+##Change WD to data folder to write CSV
+setwd("../Data/Raw")
+
 write.csv(allStateRegs, "WastewaterRegulationByState.csv")
