@@ -5,11 +5,12 @@ setwd("../Data/Clean")
 
 data = read_csv("cleanMergedData.csv") |> 
   select(-`...1`) |> 
-  mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m"))
+  mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m")) |> 
+  rename(USDARegion = `USDA Farm Production Region`)
 
-##There are repeated rows from different categories.
+##There are repeated rows from different categories. This combines them so they aren't weighted heavier
 dataWithoutCat = data |> 
-  group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear) |> 
+  group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear, USDARegion) |> 
   summarise(avgValue = mean(avgValue))
 
 ##See the differences between states that do and do not have regs
@@ -43,15 +44,36 @@ dataWithoutCat |>
 
 
 ##See if there are systematic stochastic differences between specification types
-dataWithoutCat |> 
+data |> 
   filter(CharacteristicName == "Nitrogen",
-         hasStateReg) |> 
+         hasStateReg) |>
+  group_by(year, Specification, state, month) |> 
+  summarize(avgVal = mean(avgValue)) |> 
   mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together
   group_by(Specification, year) |> 
-  summarise(avgVal = mean(avgValue)) |> 
+  summarise(avgVal = mean(avgVal)) |> 
   ggplot(aes(x = year, y = avgVal, color = Specification)) + 
-  geom_line() +
-  geom_smooth(method = "lm", formula = "y ~ x")
+  geom_line() 
+
+##See if there is any 
+dataWithoutCat |> 
+  filter(hasStateReg,
+         avgValue < 20) |> ##Remove outliers for plot to get better view of data
+  mutate(event = year - currentRegYear,
+         event = ifelse(event > 9, 10, event),
+         event = ifelse(event < -9, -10, event))  |> 
+  ggplot(aes(x = event, y = avgValue)) +
+  geom_point() +
+  geom_vline(xintercept = 0) +
+  geom_smooth()
+  
+##See if there are any systematic stochastic differences by region
+dataWithoutCat |> 
+  group_by(year, USDARegion)
+  
+  
+
+
 
 
 
