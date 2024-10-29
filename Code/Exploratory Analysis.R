@@ -18,27 +18,14 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +
   scale_x_log10()
 
+dataWithoutCat = dataWithoutCat |> 
+  mutate(lnAvgVal = log(avgValue))
+
 ##See if there are any stochastic differences between states that do and do not have regs
 dataWithoutCat |> 
   filter(CharacteristicName == "Nitrogen") |> 
   group_by(year, hasStateReg) |> 
-  summarise(avgVal = mean(avgValue, na.rm = T)) |> 
-  ggplot(aes(x = year, y = avgVal, color = hasStateReg)) +
-  geom_line()
-
-##See what's driving the extreme data in 2015
-dataWithoutCat |> 
-  filter(CharacteristicName == "Nitrogen",
-         !hasStateReg,
-         year == 2015,
-         avgValue > 10)
-
-##Remove extreme NH data
-dataWithoutCat |> 
-  filter(CharacteristicName == "Nitrogen",
-         state != "NH") |> #Remove extreme data to see trends better
-  group_by(year, hasStateReg) |> 
-  summarise(avgVal = mean(avgValue, na.rm = T)) |> 
+  summarise(avgVal = mean(lnAvgVal, na.rm = T)) |> 
   ggplot(aes(x = year, y = avgVal, color = hasStateReg)) +
   geom_line()
 
@@ -48,7 +35,7 @@ data |>
   filter(CharacteristicName == "Nitrogen",
          hasStateReg) |>
   group_by(year, Specification, state, month) |> 
-  summarize(avgVal = mean(avgValue)) |> 
+  summarize(avgVal = mean(log(avgValue))) |> 
   mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together
   group_by(Specification, year) |> 
   summarise(avgVal = mean(avgVal)) |> 
@@ -57,19 +44,20 @@ data |>
 
 ##See if there is any 
 dataWithoutCat |> 
-  filter(hasStateReg,
-         avgValue < 20) |> ##Remove outliers for plot to get better view of data
+  filter(hasStateReg) |> 
   mutate(event = year - currentRegYear,
          event = ifelse(event > 9, 10, event),
          event = ifelse(event < -9, -10, event))  |> 
-  ggplot(aes(x = event, y = avgValue)) +
+  ggplot(aes(x = event, y = lnAvgVal)) +
   geom_point() +
   geom_vline(xintercept = 0) +
   geom_smooth()
   
 ##See if there are any systematic stochastic differences by region
 dataWithoutCat |> 
-  group_by(year, USDARegion)
+  ggplot(aes(x = avgValue, fill = USDARegion)) +
+  geom_histogram(position = "Identity", alpha = .2, bins = 50)  +
+  scale_x_log10()
   
   
 
