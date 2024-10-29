@@ -1,0 +1,16 @@
+---
+title: 'Agricultural Water Reuse Policy: An Exploratory Analysis'
+author: "Grant Klopfer, Francis Kawalski"
+date: "2024-10-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Water scarcity has been a growing issue for decades, especially with regards to agriculture. 2020 saw 3.2 billion people living in agricultural areas with high water scarcity per the United Nations (Water Scarcity, 2020). The UN also notes that water scarcity is projected to increase over time, an effect that–compounded with climate change–will put increasing pressure on food supplies (UN-Water, 2024). This factor is especially significant with 72% of water withdrawals globally being used for agriculture (UN-Water, 2021).
+
+Solutions for water scarcity, therefore, are very important. One solution is the reuse of treated wastewater for irrigation in agriculture, which the EPA notes can create a "reliable, sustainable, and local water supply (EPA, 2024). Reznik et al. (2019) find that the reuse of treated wastewater can be both an "Efficient and sustainable solution for water resource scarcity". However, it is not a perfect solution. The reuse of wastewater can introduce contaminants including metals, salts, and nutrients. These factors can enter and damage both soil and water supplies (Yalin et al., 2023; Trotta et al., 2024).
+
+Among these, nutrient pollution is especially concerning. Nutrient pollution is a type of water pollution consisting of excess compounds of nitrogen and phosphorus. Per the EPA, nutrient pollution is "One of America's most widespread, costly, and challenging environmental problems," (EPA, 2024). The EPA further notes that excess nitrogen pollution can be harmful to human health and wildlife populations: excess nitrogen in bodies of surface waters can cause algae blooms, which can release toxins harmful both to humans and wildlife. Nitrates (a nitrogen compound) can enter drinking water supplies, and can be harmful to humans–or fatal to infants–even in low levels. Mosheim and Sickles (2021) find that nutrient pollution can increase the production costs of water utilities, which is substantiated by EPA findings of water production costs increasing from ten cents per gallon treated up to four dollars per gallon with the installation of a nitrate reduction system (EPA, 2024).
