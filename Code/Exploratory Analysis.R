@@ -55,7 +55,7 @@ data |>
   theme_bw() +
   theme_minimal() +
   xlab("Year") +
-  ylab("Nitrogen Concentration, mg/L") +
+  ylab("Nitrogen Concentration in mg/L (logged)") +
   labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification")
 
 ##See if there are any systematic differences across the treatment horizon
@@ -70,7 +70,7 @@ dataWithoutCat |>
   geom_smooth() +
   theme_bw()+ 
   xlab("Years Relative to Treatment") +
-  ylab("Nitrogen Concentration (mg/L)") +
+  ylab("Nitrogen Concentration in mg/L (logged)") +
   labs(title = "Nitrogen Concentration Across Regulation Periods")
   
 ##See if there are any systematic stochastic differences by region
@@ -79,7 +79,7 @@ dataWithoutCat |>
   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +
   scale_x_log10() +
   theme_bw() +
-  xlab("Nitrogen Concentration (mg/L)") +
+  xlab("Nitrogen Concentration in mg/L (logged)") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentrations by Region", 
        fill = "USDA Region")
