@@ -28,3 +28,23 @@ In the final dataset, the unit of analysis is called *avgvalue*, and this variab
 Some extreme values became apparent during the visualization process. Specifically, New Hampshire had values ten-fold higher than any other observations for the year 2015. We were unable to find any reports of this during our research, so we omitted the state of New Hampshire due to data quality concerns. Some state regulations were first passed long before the time-frame covered by our data (such as California's 1918 regulation on wastewater reuse). We elected to create a category for observations with greater than ten years of treatment to allow this information's inclusion in analyses where it is relevant.
 
 ## Visualizations
+
+![](images/NitrogenConcentrationWithWithoutRegulations.png)
+
+Our first figure displays distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. The two distributions show similar modes, though states with regulations trend towards higher concentrations. This could imply selection bias, as states with preexisting higher concentrations of nitrogen may be more likely to regulate its levels.
+
+![](images/NitrogenConcentrationByRegulation.png)
+
+Our second figure shows trends in nitrogen concentration over time for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher values of wastewater on average, and exhibit a slow increase over time. Unregulated states have lower levels of nitrogen concentration, though concentrations are increasing at a faster rate.
+
+![](images/NitrogenConcentrationBySpecification.png)
+
+Our third figure shows how concentration varies over time by regulatory specification. Different states specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater.
+
+![](images/NitrogenConcentrationAcrossRegulationTime.png)
+
+Our fourth figure shows individual observations of nitrogen concentrations over time, with time zero being the period when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
+
+![](images/NitrogenConcentrationByRegion.png)
+
+Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bimodal distribution containing peaks at both low and moderately high concentration values.
