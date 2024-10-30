@@ -22,7 +22,8 @@ RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   theme_minimal() +
   xlab("Nitrogen Concentration in mg/L (logged)") +
   ylab("Number of Observations") +
-  labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")
+  labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
 
 dataWithoutCat = dataWithoutCat |> 
   mutate(lnAvgVal = log(avgValue))
@@ -31,14 +32,16 @@ dataWithoutCat = dataWithoutCat |>
 ConcentrationByReg = dataWithoutCat |> 
   filter(CharacteristicName == "Nitrogen") |> 
   group_by(year, hasStateReg) |> 
-  summarise(avgVal = mean(lnAvgVal, na.rm = T)) |> 
+  summarise(avgVal = mean(avgValue, na.rm = T)) |> 
   ggplot(aes(x = year, y = avgVal, color = hasStateReg)) +
   geom_line() +
+  scale_y_log10() + 
   theme_bw() +
   theme_minimal() +
   xlab("Year") +
   ylab("Nitrogen in mg/L (logged)") +
-  labs(title = "Nitrogen Concentration Over time", color = "State Has\nRegulations")
+  labs(title = "Nitrogen Concentration Over time", color = "State Has\nRegulations") +
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
 
 
 ##See if there are systematic stochastic differences between specification types
@@ -46,17 +49,19 @@ ConcentrationBySpec = data |>
   filter(CharacteristicName == "Nitrogen",
          hasStateReg) |>
   group_by(year, Specification, state, month) |> 
-  summarize(avgVal = mean(log(avgValue))) |> 
+  summarize(avgVal = mean(avgValue, na.rm = T)) |> 
   mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together
   group_by(Specification, year) |> 
   summarise(avgVal = mean(avgVal)) |> 
   ggplot(aes(x = year, y = avgVal, color = Specification)) + 
   geom_line() +
+  scale_y_log10() +
   theme_bw() +
   theme_minimal() +
   xlab("Year") +
   ylab("Nitrogen Concentration in mg/L (logged)") +
-  labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification")
+  labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification") +
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
 
 ##See if there are any systematic differences across the treatment horizon
 ConcentrationAcrossReg = dataWithoutCat |> 
@@ -64,25 +69,28 @@ ConcentrationAcrossReg = dataWithoutCat |>
   mutate(event = year - currentRegYear,
          event = ifelse(event > 9, 10, event),
          event = ifelse(event < -9, -10, event))  |> 
-  ggplot(aes(x = event, y = lnAvgVal)) +
+  ggplot(aes(x = event, y = avgValue)) +
   geom_point(alpha = .3, size = 2) +
   geom_vline(xintercept = 0) +
   geom_smooth() +
   theme_bw()+ 
   xlab("Years Relative to Treatment") +
   ylab("Nitrogen Concentration in mg/L (logged)") +
-  labs(title = "Nitrogen Concentration Across Regulation Periods")
+  labs(title = "Nitrogen Concentration Across Regulation Periods") +
+  scale_y_log10(labels = scales::comma) +
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
   
 ##See if there are any systematic stochastic differences by region
 ConcentrationByRegion = dataWithoutCat |> 
   ggplot(aes(x = avgValue, fill = USDARegion)) +
   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +
-  scale_x_log10() +
+  scale_x_log10(labels = scales::comma) +
   theme_bw() +
   xlab("Nitrogen Concentration in mg/L (logged)") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentrations by Region", 
-       fill = "USDA Region")
+       fill = "USDA Region")+
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
 
 ggsave("plots/NitrogenConcentrationByRegion.png", ConcentrationByRegion, height = 4, width = 6)
   
