@@ -72,7 +72,8 @@ waterDataWithCoords = waterDataWithCoords |>
 
 ##Add all the state data found earlier 
 dataWithState = rbind(waterDataWithCoords, stateWithoutCoords) |> 
-  mutate(state = state.abb[match(state,state.name)])
+  mutate(state = state.abb[match(state,state.name)]) |> 
+  filter(state != "HI", state != "AK") ##Remove AK and HI to have similar comparisons
 
 ##Convert data into monthly averages
 waterDataMthAvg = dataWithState |> 
