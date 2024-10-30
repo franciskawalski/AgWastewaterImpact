@@ -25,7 +25,7 @@ The nature and exact specifications of each state's water reuse quality regulati
 
 To capture any climate trends that may impact the amount of nitrogen used, we have also included data from the USDA Farm Production Regions. These regions are defined by state borders and capture similarity of crops, which is largely determined by climate.
 
-In the final dataset, the unit of analysis is called *avgvalue*, and this variable contains the average quantity of a given nitrogen compound for each state and year combination. Our analysis looks primarily at nitrogen (as opposed to other compounds thereof) as it is the most consistently regulated by states. The distribution of average value of nitrogen is right-skewed, so a log transformation was applied to normalize the distribution and ease of interpretation. 
+In the final dataset, the unit of analysis is called *avgvalue*, and this variable contains the average quantity of a given nitrogen compound for each state and year combination. Our analysis looks primarily at nitrogen (as opposed to other compounds thereof) as it is the most consistently regulated by states. The distribution of average value of nitrogen is right-skewed, so a log transformation was applied to normalize the distribution and ease of interpretation.
 
 Some extreme values became apparent during the visualization process. Some state wastewater reuse regulations were first passed long before the time-frame covered by our data (such as California's 1918 regulation). When we analyze average water quality across states relative to the year of treatment, we bin all observations over 10 years before and after the event. Additionally, due to fundamental differences in region, crop, and climate we decided to exclude Alaska and Hawaii from the analysis.
 
@@ -50,3 +50,23 @@ Our fourth figure shows individual observations of nitrogen concentrations over 
 ![](images/NitrogenConcentrationByRegion.png)
 
 Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bimodal distribution containing peaks at both low and moderately high concentration values.
+
+## Works Cited
+
+Environmental Protection Agency. (2024, February 5). Reusing Water for Agricultural Activities. Water Reuse. <https://www.epa.gov/waterreuse/reusing-water-agricultural-activities-resources>
+
+National Integrated Drought Information System. (2024). Agriculture. Drought.gov. <https://www.drought.gov/sectors/agriculture#:~:text=The%20depletion%20of%20water%20availability,forage%20irrigation%20and%20watering%20livestock.>
+
+Reznik, A., Dinar, A., & Hernández-Sancho, F. (2019). Treated wastewater reuse: An efficient and sustainable solution for water resource scarcity. Environmental and Resource Economics, 74(4), 1647–1685. <https://doi.org/10.1007/s10640-019-00383-2>
+
+Sharkoff, James L. (2012, November 27). Colorado Nitrogen Leaking Index Risk Assessment. U.S. Department of Agriculture Technical Notes, State of Colorado. <https://efotg.sc.egov.usda.gov/references/public/CO/COATN_97.pdf>
+
+Trotta, V., Baaloudj, O., & Brienza, M. (2024). Risks associated with wastewater reuse in agriculture: Investigating the effects of contaminants in soil, plants, and insects. Frontiers in Environmental Science, 12. <https://doi.org/10.3389/fenvs.2024.1358842>
+
+United Nations. (2021, July). Summary progress update 2021: SDG 6 - water and sanitation for all. UN Water. <https://www.unwater.org/publications/summary-progress-update-2021-sdg-6-water-and-sanitation-all>
+
+United Nations. (2024). Water scarcity: UN-water. UN Water. <https://www.unwater.org/water-facts/water-scarcity>
+
+United Nations. (n.d.). Water – at the center of the Climate Crisis. United Nations. <https://www.un.org/en/climatechange/science/climate-issues/water>
+
+Yalin, D., Craddock, H. A., Assouline, S., Ben Mordechay, E., Ben-Gal, A., Bernstein, N., Chaudhry, R. M., Chefetz, B., Fatta-Kassinos, D., Gawlik, B. M., Hamilton, K. A., Khalifa, L., Kisekka, I., Klapp, I., Korach-Rechtman, H., Kurtzman, D., Levy, G. J., Maffettone, R., Malato, S., … Cytryn, E. (2023). Mitigating risks and maximizing sustainability of treated wastewater reuse for irrigation. Water Research X, 21. <https://doi.org/10.1016/j.wroa.2023.100203>
