@@ -14,6 +14,8 @@ dataWithoutCat = data |>
   group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear, USDARegion) |> 
   summarise(avgValue = mean(avgValue))
 
+write.csv(dataWithoutCat, "stateAvgWithoutCat.csv")
+
 ##See the differences between states that do and do not have regs
 RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +
@@ -24,9 +26,6 @@ RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
-
-dataWithoutCat = dataWithoutCat |> 
-  mutate(lnAvgVal = log(avgValue))
 
 ##See if there are any stochastic differences between states that do and do not have regs
 ConcentrationByReg = dataWithoutCat |> 
@@ -48,7 +47,7 @@ ConcentrationByReg = dataWithoutCat |>
 ConcentrationBySpec = data |> 
   filter(CharacteristicName == "Nitrogen",
          hasStateReg) |>
-  group_by(year, Specification, state, month) |> 
+  group_by(year, Specification, state, month) |> ##Combine state level data into only relevant categories
   summarize(avgVal = mean(avgValue, na.rm = T)) |> 
   mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together
   group_by(Specification, year) |> 
