@@ -32,22 +32,22 @@ Some extreme values became apparent during the visualization process. Some state
 
 ## Visualizations
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
 dataWithoutCat = read_csv("stateAvgWithoutCat.csv")
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +
   theme_bw() +
   theme_minimal() +
-  xlab("Nitrogen Concentration in mg/L (logged)") +
+  xlab("Nitrogen Concentration in mg/L") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
 ```
 
-Our first figure displays distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. This distribution is very right skewed, which led to our decision to log-transform the average nitrogen level variable.
+We initially examined the distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. This distribution is very right skewed, which led to our decision to log-transform the average nitrogen level variable.
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
 dataWithoutCat = read_csv("stateAvgWithoutCat.csv")
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
@@ -55,7 +55,7 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   scale_x_log10() +
   theme_bw() +
   theme_minimal() +
-  xlab("Nitrogen Concentration in mg/L (logged)") +
+  xlab("Nitrogen Concentration in mg/L") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
@@ -63,10 +63,9 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
 
 The two log-transformed distributions show similar modes, though states with regulations trend towards higher concentrations. This could imply selection bias, as states with preexisting higher concentrations of nitrogen may be more likely to regulate its levels.
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
-dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |> 
-  filter(state != "NH")
+dataWithoutCat = read_csv("stateAvgWithoutCat.csv") 
 
 dataWithoutCat |> 
   filter(CharacteristicName == "Nitrogen") |> 
@@ -78,18 +77,18 @@ dataWithoutCat |>
   theme_bw() +
   theme_minimal() +
   xlab("Year") +
-  ylab("Nitrogen in mg/L (logged)") +
+  ylab("Nitrogen in mg/L") +
   labs(title = "Nitrogen Concentration Over time", color = "State Has\nRegulations") +
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
 ```
 
-Our second figure shows trends in nitrogen concentration over time for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher values of wastewater on average, and exhibit a slow increase over time. Unregulated states have lower levels of nitrogen concentration, though concentrations are increasing at a faster rate.
+  We were also interested if there were stochastic trends in nitrogen concentration for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher, more consistent values of wastewater on average. Unregulated states have lower levels of nitrogen concentration, though concentrations do appear to be increasing slightly.
+  The spike in 2015 in unregulated states is from New Hampshire. They report consistently high levels of nitrogen in their water through the year, so we believe that the data is correct. We plan to exclude this observation because we do not believe that it reflect of the data generating process we are trying to model. 
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
 data = read_csv("cleanMergedData.csv") |> 
-  select(-`...1`) |> 
-  mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m")) |> 
+  select(-`...1`)  |> 
   rename(USDARegion = `USDA Farm Production Region`)
 
 
@@ -107,14 +106,14 @@ data |>
   theme_bw() +
   theme_minimal() +
   xlab("Year") +
-  ylab("Nitrogen Concentration in mg/L (logged)") +
+  ylab("Nitrogen Concentration in mg/L") +
   labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification") +
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
 ```
 
-Our third figure shows how concentration varies over time by regulatory specification. Different states specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater.
+Our next figure shows how concentration varies over time by regulatory specification. States specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop and soil type. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater. There doesn't appear to be any significant difference between the nitrogen concentrations in these states. There is a small downward trend in recent years in states that specify a specific amount, however this sample is small so results are not robust.
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
 dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |> 
   filter(state != "NH")
@@ -130,29 +129,46 @@ dataWithoutCat |>
   geom_smooth() +
   theme_bw()+ 
   xlab("Years Relative to Treatment") +
-  ylab("Nitrogen Concentration in mg/L (logged)") +
+  ylab("Nitrogen Concentration in mg/L") +
   labs(title = "Nitrogen Concentration Across Regulation Periods") +
   scale_y_log10(labels = scales::comma) +
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
 ```
 
-Our fourth figure shows individual observations of nitrogen concentrations over time, with time zero being the period when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
+We were also curious how individual observations of nitrogen concentrations changed relative to when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 setwd("../Data/Clean")
 dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |> 
-  filter(state != "NH")
+  filter(!is.na(USDARegion))
 
 dataWithoutCat |> 
   ggplot(aes(x = avgValue, fill = USDARegion)) +
   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +
   scale_x_log10(labels = scales::comma) +
   theme_bw() +
-  xlab("Nitrogen Concentration in mg/L (logged)") +
+  xlab("Nitrogen Concentration in mg/L") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentrations by Region", 
        fill = "USDA Region")+
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
 ```
 
-Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bimodal distribution containing peaks at both low and moderately high concentration values.
+Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note (shown below) include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bi modal distribution containing peaks at both low and moderately high concentration values.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
+setwd("../Data/Clean")
+dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |> 
+  filter(USDARegion == "Appalachian" | USDARegion == "Corn Belt")
+
+dataWithoutCat |> 
+  ggplot(aes(x = avgValue, fill = USDARegion)) +
+  geom_histogram(position = "Identity", alpha = .4, bins = 50)  +
+  scale_x_log10(labels = scales::comma) +
+  theme_bw() +
+  xlab("Nitrogen Concentration in mg/L") +
+  ylab("Number of Observations") +
+  labs(title = "Nitrogen Concentrations by Region", 
+       fill = "USDA Region")+
+  theme(plot.title = element_text(hjust = 0.5)) ##Center title
+```
