@@ -15,7 +15,7 @@ dataWithoutCat = data |>
   summarise(avgValue = mean(avgValue))
 
 ##See the differences between states that do and do not have regs
-ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
+RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +
   scale_x_log10() +
   theme_bw() +
@@ -28,7 +28,7 @@ dataWithoutCat = dataWithoutCat |>
   mutate(lnAvgVal = log(avgValue))
 
 ##See if there are any stochastic differences between states that do and do not have regs
-dataWithoutCat |> 
+ConcentrationByReg = dataWithoutCat |> 
   filter(CharacteristicName == "Nitrogen") |> 
   group_by(year, hasStateReg) |> 
   summarise(avgVal = mean(lnAvgVal, na.rm = T)) |> 
@@ -42,7 +42,7 @@ dataWithoutCat |>
 
 
 ##See if there are systematic stochastic differences between specification types
-data |> 
+ConcentrationBySpec = data |> 
   filter(CharacteristicName == "Nitrogen",
          hasStateReg) |>
   group_by(year, Specification, state, month) |> 
@@ -59,7 +59,7 @@ data |>
   labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification")
 
 ##See if there are any systematic differences across the treatment horizon
-dataWithoutCat |> 
+ConcentrationAcrossReg = dataWithoutCat |> 
   filter(hasStateReg) |> 
   mutate(event = year - currentRegYear,
          event = ifelse(event > 9, 10, event),
@@ -74,7 +74,7 @@ dataWithoutCat |>
   labs(title = "Nitrogen Concentration Across Regulation Periods")
   
 ##See if there are any systematic stochastic differences by region
-dataWithoutCat |> 
+ConcentrationByRegion = dataWithoutCat |> 
   ggplot(aes(x = avgValue, fill = USDARegion)) +
   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +
   scale_x_log10() +
@@ -84,10 +84,15 @@ dataWithoutCat |>
   labs(title = "Nitrogen Concentrations by Region", 
        fill = "USDA Region")
 
+ggsave("plots/NitrogenConcentrationByRegion.png", ConcentrationByRegion, height = 4, width = 6)
   
-  
+ggsave("plots/NitrogenConcentrationByRegulation.png", ConcentrationByReg, height = 4, width = 6)
 
+ggsave("plots/NitrogenConcentrationBySpecification.png", ConcentrationBySpec, height = 4, width = 6)
 
+ggsave("plots/NitrogenConcentrationAcrossRegulationTime.png", ConcentrationAcrossReg, height = 4, width = 6)
+
+ggsave("plots/NitrogenConcentrationWithWithoutRegulations.png", RegVsNot, height = 4, width = 6)
 
 
 
