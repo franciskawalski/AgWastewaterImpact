@@ -55,7 +55,7 @@ waterDataWithCoords = waterDataCleaned |>
   filter(!is.na(ActivityLocation.LatitudeMeasure),
          !is.na(ActivityLocation.LongitudeMeasure))
 
-##Get the state that coordinates are in from shape files of US states
+##For obs with coordinates get the state they are in from shape files
 coords = data.frame(lat = waterDataWithCoords$ActivityLocation.LatitudeMeasure,
                     lon = waterDataWithCoords$ActivityLocation.LongitudeMeasure)
 
@@ -73,7 +73,7 @@ waterDataWithCoords = waterDataWithCoords |>
 ##Add all the state data found earlier 
 dataWithState = rbind(waterDataWithCoords, stateWithoutCoords) |> 
   mutate(state = state.abb[match(state,state.name)]) |> 
-  filter(state != "HI", state != "AK") ##Remove AK and HI to have similar comparisons
+  filter(state != "HI", state != "AK")  ##Remove AK and HI to have similar comparisons
 
 ##Convert data into monthly averages
 waterDataMthAvg = dataWithState |> 

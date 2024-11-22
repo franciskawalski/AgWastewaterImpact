@@ -16,12 +16,15 @@ stateRegYear = read_csv("stateRegYear.csv") |>
 avgMthWaterData = read_csv("AverageMonthlyWaterData.csv") |> 
   select(-`...1`)
 
+totalWaterData = read_csv("waterDataCleaned.csv") |> 
+  select(-`...1`)
+
 regions = read_csv("USDA Regions.csv") |> 
   mutate(State = state.abb[match(State,state.name)]) |> 
   rename(state = State)
 
 ##Join water quality data with state data
-finalData = avgMthWaterData |> 
+mergedStateAvg = avgMthWaterData |> 
   left_join(stateRegs, by = "state", relationship = "many-to-many") |> 
   mutate(hasStateReg = !is.na(Specification)) |> 
   filter(tolower(CharacteristicName) == `Water Quality Parameter` | !hasStateReg) |> 
@@ -30,5 +33,16 @@ finalData = avgMthWaterData |>
   left_join(regions, by = "state", relationship = "many-to-one")
 
 
-write.csv(finalData, "cleanMergedData.csv")
+write.csv(mergedStateAvg, "cleanMergedData_StateAvg.csv")
+
+mergeredTotal = totalWaterData |> 
+  left_join(stateRegs, by = "state", relationship = "many-to-many") |> 
+  mutate(hasStateReg = !is.na(Specification)) |> 
+  filter(tolower(CharacteristicName) == `Water Quality Parameter` | !hasStateReg) |> 
+  left_join(stateRegYear, by = "state", relationship = "many-to-one") |> 
+  rename(regType = Type) |> 
+  left_join(regions, by = "state", relationship = "many-to-one")
+
+write.csv(mergeredTotal, "cleanMergedData_StationLevel.csv")
+
 

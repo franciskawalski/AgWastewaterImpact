@@ -4,7 +4,7 @@ library(RColorBrewer)
 
 setwd("../Data/Clean")
 
-data = read_csv("cleanMergedData.csv") |> 
+data = read_csv("cleanMergedData_StateAvg.csv") |> 
   select(-`...1`) |> 
   mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m")) |> 
   rename(USDARegion = `USDA Farm Production Region`)
