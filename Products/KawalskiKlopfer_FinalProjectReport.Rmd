@@ -17,7 +17,7 @@ Solutions for water scarcity, therefore, are very important. One solution is the
 
 Among these, nutrient pollution is especially concerning. Nutrient pollution is a type of water pollution consisting of excess compounds of nitrogen and phosphorus. Per the EPA, nutrient pollution is "One of America's most widespread, costly, and challenging environmental problems," (EPA, 2024). The EPA further notes that excess nitrogen pollution can be harmful to human health and wildlife populations: excess nitrogen in bodies of surface waters can cause algae blooms, which can release toxins harmful both to humans and wildlife. Nitrates (a nitrogen compound) can enter drinking water supplies, and can be harmful to humans–or fatal to infants–even in low levels. Mosheim and Sickles (2021) find that nutrient pollution can increase the production costs of water utilities, which is substantiated by EPA findings of water production costs increasing from ten cents per gallon treated up to four dollars per gallon with the installation of a nitrate reduction system (EPA, 2024).
 
-This issue of nutrient pollution–especially nitrogen pollution–have become an issue of great concern to regulators in recent years. As a result, 28 states currently have regulations in place on quality and/or usage of reused water for irrigation of crops. Primarily, these regulations affect treated municipal wastewater–a common source of reused wastewater (EPA, 2024). However, little research on how effective these policies are is present in existing literature.
+This issue of nutrient pollution–especially nitrogen pollution–has become an issue of great concern to regulators in recent years. As a result, 28 states currently have regulations in place on quality and/or usage of reused water for irrigation of crops. Primarily, these regulations affect treated municipal wastewater–a common source of reused wastewater (EPA, 2024). However, little research on how effective these policies are is present in existing literature.
 
 ## Data
 
@@ -72,13 +72,13 @@ Several methods were used to estimate the effects of wastewater reuse regulation
 
 $Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
 
-Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station, *Year* is the year each observation was recorded, *Month* was the month each observation was recorded, and *Region* is the USDA Farm Production Region.
+Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station *i* where each observation was taken, *Year* is the year *y* each observation was recorded, *Month* was the month *m* each observation was recorded, and *Region* is the USDA Farm Production Region *r* where each observation was taken.
 
 Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. This was estimated with the equation
 
-$ Nitrogen_{xzsiymr} = \beta_1AmountSpecified_{xsy} + \beta2NotSpecified_{zsy} + \beta_3State_s + \beta4Station_i + beta_5Year_y + \beta_6Month_m + \beta7Region_r $  
+$ Nitrogen_{siymr} = \beta_1AmountSpecified_{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r $  
 
-Where x is the regulated amount of nitrogen specified by a state regulation, z is whether or not a state specified an amount in their regulation,
+Where *Nitrogen* is the percent change in the concentration of nitrogen at a specific monitoring station, *AmountSpecified* is the amount of nitrogen permitted in reused wastewater by a state regulation *NotSpecified* is an indicator variable equal to 1 if a state regulation did not specify an allowable nitrogen amount, *State* is the state *s* each observation was taken in, *Station* is the individual water quality monitoring station *i* at which each measurement was taken, *Year* is the year *y* each observation was taken in, *Month* is the month *m* each observation was taken in, and *Region* is the USDA Farm Production Region *r* each observation was taken in.
 
 ## Results
 
