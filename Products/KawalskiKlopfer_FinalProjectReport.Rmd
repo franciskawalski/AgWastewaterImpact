@@ -33,7 +33,7 @@ Some extreme values became apparent during the visualization process. Some state
 
 ## Visualizations
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") 
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   
@@ -46,7 +46,7 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
 
 We initially examined the distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. This distribution is very right skewed, which led to our decision to log-transform the average nitrogen level variable.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") 
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   
@@ -60,7 +60,7 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
 
 The two log-transformed distributions show similar modes, though states with regulations trend towards higher concentrations. This could imply selection bias, as states with preexisting higher concentrations of nitrogen may be more likely to regulate its levels.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv")   
 dataWithoutCat |>    
   filter(CharacteristicName == "Nitrogen") |>    
@@ -79,7 +79,7 @@ dataWithoutCat |>
 
 We were also interested if there were stochastic trends in nitrogen concentration for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher, more consistent values of wastewater on average. Unregulated states have lower levels of nitrogen concentration, though concentrations do appear to be increasing slightly. The spike in 2015 in unregulated states is from New Hampshire. They report consistently high levels of nitrogen in their water through the year, so we believe that the data is correct. We plan to exclude this observation because we do not believe that it reflect of the data generating process we are trying to model.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 data = read_csv("../Data/Clean/cleanMergedData_StationLevel.csv") |>    
   select(-`...1`)  |>    
   rename(USDARegion = `USDA Farm Production Region`)   
@@ -104,7 +104,7 @@ data |>
 
 Our next figure shows how concentration varies over time by regulatory specification. States specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop and soil type. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater. There doesn't appear to be any significant difference between the nitrogen concentrations in these states. There is a small downward trend in recent years in states that specify a specific amount, however this sample is small so results are not robust.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(state != "NH")  
 dataWithoutCat |>    
@@ -126,7 +126,7 @@ dataWithoutCat |>
 
 We were also curious how individual observations of nitrogen concentrations changed relative to when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(!is.na(USDARegion))  
 
@@ -144,7 +144,7 @@ dataWithoutCat |>
 
 Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note (shown below) include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bi modal distribution containing peaks at both low and moderately high concentration values.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(USDARegion == "Appalachian" | USDARegion == "Corn Belt")  
 
@@ -162,17 +162,19 @@ dataWithoutCat |>
 
 ## Methods
 
-Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. Our first method was a simple naive OLS regression, with the estimating equation
+Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. The dependent variable of each model was log-transformed. Our first method was a simple naive OLS regression. While lacking in complexity, this model with its numerous fixed effects manages to capture a substantial amount of variance in water quality and identifies effects of legislation with some degree of detail due to the individual water quality monitor level outcomes. It was estimated with the equation:
 
 $Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
 
 Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station *i* where each observation was taken, *Year* is the year *y* each observation was recorded, *Month* was the month *m* each observation was recorded, and *Region* is the USDA Farm Production Region *r* where each observation was taken.
 
-Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. This was estimated with the equation
+Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. We condcuted this analysis to evaluate whether or not intensity of treatment has any effect on nitrogen concentrations. This model was estimated with the equation:
 
-$ Nitrogen_{siymr} = \beta_1AmountSpecified_{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r $  
+$Nitrogen_{siymr} = \beta1AmountSpecified{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r$
 
 Where *Nitrogen* is the percent change in the concentration of nitrogen at a specific monitoring station, *AmountSpecified* is the amount of nitrogen permitted in reused wastewater by a state regulation *NotSpecified* is an indicator variable equal to 1 if a state regulation did not specify an allowable nitrogen amount, *State* is the state *s* each observation was taken in, *Station* is the individual water quality monitoring station *i* at which each measurement was taken, *Year* is the year *y* each observation was taken in, *Month* is the month *m* each observation was taken in, and *Region* is the USDA Farm Production Region *r* each observation was taken in.
+
+Our final model was a Gardner difference-in-differences model. Recent literature has suggested that staggered treatment difference in differences models can have biased estimates. As a result, we utilized this Gardner model in an attempt to account for any potential bias.
 
 ## Results
 
