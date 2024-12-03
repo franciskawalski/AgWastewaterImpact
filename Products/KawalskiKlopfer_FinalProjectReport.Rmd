@@ -68,6 +68,18 @@ Our final figure shows density of observations for different nitrogen concentrat
 
 ## Methods
 
+Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. Our first method was a simple naive OLS regression, with the estimating equation
+
+$Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
+
+Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station, *Year* is the year each observation was recorded, *Month* was the month each observation was recorded, and *Region* is the USDA Farm Production Region.
+
+Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. This was estimated with the equation
+
+$ Nitrogen_{xzsiymr} = \beta_1AmountSpecified_{xsy} + \beta2NotSpecified_{zsy} + \beta_3State_s + \beta4Station_i + beta_5Year_y + \beta_6Month_m + \beta7Region_r $  
+
+Where x is the regulated amount of nitrogen specified by a state regulation, z is whether or not a state specified an amount in their regulation,
+
 ## Results
 
 Our naive regression of
