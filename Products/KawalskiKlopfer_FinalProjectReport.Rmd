@@ -1,0 +1,93 @@
+---
+title: "Impact of Agricultural Wastewater Reuse on Water Quality"
+author: "Grant Klopfer, Francis Kawalski"
+date: "2024-12-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+
+Water scarcity has been a growing issue for decades, especially with regards to agriculture. 2020 saw 3.2 billion people living in agricultural areas with high water scarcity per the United Nations (Water Scarcity, 2020). The UN also notes that water scarcity is projected to increase over time, an effect that–compounded with climate change–will put increasing pressure on food supplies (UN-Water, 2024). This factor is especially significant with 72% of water withdrawals globally being used for agriculture (UN-Water, 2021).
+
+Solutions for water scarcity, therefore, are very important. One solution is the reuse of treated wastewater for irrigation in agriculture, which the EPA notes can create a "reliable, sustainable, and local water supply. Specifically, wastewater reuse consists of water from sewage systems, stormwater systems, or industrial sources that has been processed for cleanliness to some degree. The degree to which it is processed varies, and is regulated at the state level (EPA, 2024). Reznik et al. (2019) find that the reuse of treated wastewater can be both an "Efficient and sustainable solution for water resource scarcity". However, it is not a perfect solution. The reuse of wastewater can introduce contaminants including metals, salts, and nutrients. These factors can enter and damage both soil and water supplies (Yalin et al., 2023; Trotta et al., 2024).
+
+Among these, nutrient pollution is especially concerning. Nutrient pollution is a type of water pollution consisting of excess compounds of nitrogen and phosphorus. Per the EPA, nutrient pollution is "One of America's most widespread, costly, and challenging environmental problems," (EPA, 2024). The EPA further notes that excess nitrogen pollution can be harmful to human health and wildlife populations: excess nitrogen in bodies of surface waters can cause algae blooms, which can release toxins harmful both to humans and wildlife. Nitrates (a nitrogen compound) can enter drinking water supplies, and can be harmful to humans–or fatal to infants–even in low levels. Mosheim and Sickles (2021) find that nutrient pollution can increase the production costs of water utilities, which is substantiated by EPA findings of water production costs increasing from ten cents per gallon treated up to four dollars per gallon with the installation of a nitrate reduction system (EPA, 2024).
+
+This issue of nutrient pollution–especially nitrogen pollution–have become an issue of great concern to regulators in recent years. As a result, 28 states currently have regulations in place on quality and/or usage of reused water for irrigation of crops. Primarily, these regulations affect treated municipal wastewater–a common source of reused wastewater (EPA, 2024). However, little research on how effective these policies are is present in existing literature.
+
+## Data
+
+Our analysis aims to shed light on this trade-off between a sustainable water supply and the reduction of nutrient pollution. We use panel data from several sources to conduct our analysis. Water quality data is collected from USGS and EPA water surveys compiled by the National Water Quality Monitoring Council. This data includes concentrations of nitrogen and nitrogen compounds in various bodies of surface and groundwater in milligrams/liter. Nitrogen is one of the most common aspects of water quality that states have regulations on , so we use this as our primary analysis. These observations were primarily identified by geographic coordinates, which were mapped to U.S. states using GIS data from the Census Bureau. Some observations that did not include coordinates were linked to states using the USGS state-level office that collected the data. This data covers years from 2000 through 2023, as that time period contains most water reuse quality regulations passed by states with such regulations.
+
+The nature and exact specifications of each state's water reuse quality regulations was collected from the EPA's Regulations and End-Use Specifications Explorer (REUSExplorer). We focused primarily on the concentration regulations on nitrogen and nitrogen compounds. The concentrations are primarily measured in milligrams per liter, both in the state regulations and the water quality data. The year each of these regulations was registered with the EPA (or in cases where this information is not known, the most recent state-level regulation) was collected from both the EPA's REUSExplorer and each state's respective administrative code. For year of treatment, we used the year the EPA-recognized policy was established, though we also included the year in which each state first regulated wastewater reuse.
+
+To capture any climate trends that may impact the amount of nitrogen used, we have also included data from the USDA Farm Production Regions. These regions are defined by state borders and capture similarity of crops, which is largely determined by climate.
+
+In the final dataset, the unit of analysis is called *avgvalue*, and this variable contains the average quantity of a given nitrogen compound for each state and year combination. Our analysis looks primarily at nitrogen (as opposed to other compounds thereof) as it is the most consistently regulated by states. The distribution of average value of nitrogen is right-skewed, so a log transformation was applied to normalize the distribution and ease of interpretation.
+
+Some extreme values became apparent during the visualization process. Some state wastewater reuse regulations were first passed long before the time-frame covered by our data (such as California's 1918 regulation). When we analyze average water quality across states relative to the year of treatment, we bin all observations over 10 years before and after the event. Additionally, due to fundamental differences in region, crop, and climate we decided to exclude Alaska and Hawaii from the analysis.
+
+## Visualizations
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv") ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   theme_bw() +   theme_minimal() +   xlab("Nitrogen Concentration in mg/L") +   ylab("Number of Observations") +   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+We initially examined the distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. This distribution is very right skewed, which led to our decision to log-transform the average nitrogen level variable.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv") ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   scale_x_log10() +   theme_bw() +   theme_minimal() +   xlab("Nitrogen Concentration in mg/L") +   ylab("Number of Observations") +   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+The two log-transformed distributions show similar modes, though states with regulations trend towards higher concentrations. This could imply selection bias, as states with preexisting higher concentrations of nitrogen may be more likely to regulate its levels.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv")   dataWithoutCat |>    filter(CharacteristicName == "Nitrogen") |>    group_by(year, hasStateReg) |>    summarise(avgVal = mean(avgValue, na.rm = T)) |>    ggplot(aes(x = year, y = avgVal, color = hasStateReg)) +   geom_line() +   scale_y_log10() +    theme_bw() +   theme_minimal() +   xlab("Year") +   ylab("Nitrogen in mg/L") +   labs(title = "Nitrogen Concentration Over time", color = "State Has\nRegulations") +   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+We were also interested if there were stochastic trends in nitrogen concentration for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher, more consistent values of wastewater on average. Unregulated states have lower levels of nitrogen concentration, though concentrations do appear to be increasing slightly. The spike in 2015 in unregulated states is from New Hampshire. They report consistently high levels of nitrogen in their water through the year, so we believe that the data is correct. We plan to exclude this observation because we do not believe that it reflect of the data generating process we are trying to model.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") data = read_csv("cleanMergedData.csv") |>    select(-`...1`)  |>    rename(USDARegion = `USDA Farm Production Region`)   data |>    filter(CharacteristicName == "Nitrogen",          hasStateReg) |>   group_by(year, Specification, state, month) |> ##Combine state level data into only relevant categories   summarize(avgVal = mean(avgValue, na.rm = T)) |>    mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together   group_by(Specification, year) |>    summarise(avgVal = mean(avgVal)) |>    ggplot(aes(x = year, y = avgVal, color = Specification)) +    geom_line() +   scale_y_log10() +   theme_bw() +   theme_minimal() +   xlab("Year") +   ylab("Nitrogen Concentration in mg/L") +   labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification") +   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+Our next figure shows how concentration varies over time by regulatory specification. States specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop and soil type. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater. There doesn't appear to be any significant difference between the nitrogen concentrations in these states. There is a small downward trend in recent years in states that specify a specific amount, however this sample is small so results are not robust.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |>    filter(state != "NH")  dataWithoutCat |>    filter(hasStateReg) |>    mutate(event = year - currentRegYear,          event = ifelse(event > 9, 10, event),          event = ifelse(event < -9, -10, event))  |>    ggplot(aes(x = event, y = avgValue)) +   geom_point(alpha = .3, size = 2) +   geom_vline(xintercept = 0) +   geom_smooth() +   theme_bw()+    xlab("Years Relative to Treatment") +   ylab("Nitrogen Concentration in mg/L") +   labs(title = "Nitrogen Concentration Across Regulation Periods") +   scale_y_log10(labels = scales::comma) +   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+We were also curious how individual observations of nitrogen concentrations changed relative to when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |>    filter(!is.na(USDARegion))  dataWithoutCat |>    ggplot(aes(x = avgValue, fill = USDARegion)) +   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +   scale_x_log10(labels = scales::comma) +   theme_bw() +   xlab("Nitrogen Concentration in mg/L") +   ylab("Number of Observations") +   labs(title = "Nitrogen Concentrations by Region",         fill = "USDA Region")+   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note (shown below) include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bi modal distribution containing peaks at both low and moderately high concentration values.
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'} setwd("../Data/Clean") dataWithoutCat = read_csv("stateAvgWithoutCat.csv") |>    filter(USDARegion == "Appalachian" | USDARegion == "Corn Belt")  dataWithoutCat |>    ggplot(aes(x = avgValue, fill = USDARegion)) +   geom_histogram(position = "Identity", alpha = .4, bins = 50)  +   scale_x_log10(labels = scales::comma) +   theme_bw() +   xlab("Nitrogen Concentration in mg/L") +   ylab("Number of Observations") +   labs(title = "Nitrogen Concentrations by Region",         fill = "USDA Region")+   theme(plot.title = element_text(hjust = 0.5)) ##Center title}
+```
+
+## Methods
+
+## Results
+
+Our naive regression of
+
+## Works Cited
+
+Environmental Protection Agency. (2024, February 5). Reusing Water for Agricultural Activities. Water Reuse. <https://www.epa.gov/waterreuse/reusing-water-agricultural-activities-resources>
+
+National Integrated Drought Information System. (2024). Agriculture. Drought.gov. <https://www.drought.gov/sectors/agriculture#:~:text=The%20depletion%20of%20water%20availability,forage%20irrigation%20and%20watering%20livestock.>
+
+Reznik, A., Dinar, A., & Hernández-Sancho, F. (2019). Treated wastewater reuse: An efficient and sustainable solution for water resource scarcity. Environmental and Resource Economics, 74(4), 1647–1685. <https://doi.org/10.1007/s10640-019-00383-2>
+
+Sharkoff, James L. (2012, November 27). Colorado Nitrogen Leaking Index Risk Assessment. U.S. Department of Agriculture Technical Notes, State of Colorado. <https://efotg.sc.egov.usda.gov/references/public/CO/COATN_97.pdf>
+
+Trotta, V., Baaloudj, O., & Brienza, M. (2024). Risks associated with wastewater reuse in agriculture: Investigating the effects of contaminants in soil, plants, and insects. Frontiers in Environmental Science, 12. <https://doi.org/10.3389/fenvs.2024.1358842>
+
+United Nations. (2021, July). Summary progress update 2021: SDG 6 - water and sanitation for all. UN Water. <https://www.unwater.org/publications/summary-progress-update-2021-sdg-6-water-and-sanitation-all>
+
+United Nations. (2024). Water scarcity: UN-water. UN Water. <https://www.unwater.org/water-facts/water-scarcity>
+
+United Nations. (n.d.). Water – at the center of the Climate Crisis. United Nations. <https://www.un.org/en/climatechange/science/climate-issues/water>
+
+Yalin, D., Craddock, H. A., Assouline, S., Ben Mordechay, E., Ben-Gal, A., Bernstein, N., Chaudhry, R. M., Chefetz, B., Fatta-Kassinos, D., Gawlik, B. M., Hamilton, K. A., Khalifa, L., Kisekka, I., Klapp, I., Korach-Rechtman, H., Kurtzman, D., Levy, G. J., Maffettone, R., Malato, S., … Cytryn, E. (2023). Mitigating risks and maximizing sustainability of treated wastewater reuse for irrigation. Water Research X, 21. <https://doi.org/10.1016/j.wroa.2023.100203>
