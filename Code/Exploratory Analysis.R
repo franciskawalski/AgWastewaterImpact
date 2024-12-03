@@ -4,15 +4,23 @@ library(RColorBrewer)
 
 setwd("../Data/Clean")
 
-data = read_csv("cleanMergedData_StateAvg.csv") |> 
+#For state level analysis
+# data = read_csv("cleanMergedData_StateAvg.csv") |> 
+#   select(-`...1`) |> 
+#   mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m")) |> 
+#   rename(USDARegion = `USDA Farm Production Region`)
+
+#For station level analysis
+data = read_csv("cleanMergedData_StationLevel.csv") |> 
   select(-`...1`) |> 
   mutate(monthYear = as.yearmon(str_c(year, month), "%Y %m")) |> 
-  rename(USDARegion = `USDA Farm Production Region`)
+  rename(USDARegion = `USDA Farm Production Region`) |> 
+  filter(ResultMeasureValue <= 100) ##These outliers do not represent the true DGP
 
 ##There are repeated rows from different categories. This combines them so they aren't weighted heavier
 dataWithoutCat = data |> 
-  group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear, USDARegion) |> 
-  summarise(avgValue = mean(avgValue))
+  group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear, USDARegion, MonitoringLocationIdentifier) |> 
+  summarise(avgValue = mean(ResultMeasureValue))
 
 write.csv(dataWithoutCat, "stateAvgWithoutCat.csv")
 
@@ -22,7 +30,7 @@ RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
   scale_x_log10() +
   theme_bw() +
   theme_minimal() +
-  xlab("Nitrogen Concentration in mg/L (logged)") +
+  xlab("Nitrogen Concentration in mg/L") +
   ylab("Number of Observations") +
   labs(title = "Nitrogen Concentration by Regulation Status", fill = "State Has\nRegulations")+
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
@@ -48,7 +56,7 @@ ConcentrationBySpec = data |>
   filter(CharacteristicName == "Nitrogen",
          hasStateReg) |>
   group_by(year, Specification, state, month) |> ##Combine state level data into only relevant categories
-  summarize(avgVal = mean(avgValue, na.rm = T)) |> 
+  summarize(avgVal = mean(ResultMeasureValue, na.rm = T)) |> 
   mutate(Specification = ifelse(str_detect(Specification, "[0-9]"), "Specified Amount", Specification)) |> ##Group all nums together
   group_by(Specification, year) |> 
   summarise(avgVal = mean(avgVal)) |> 
@@ -61,6 +69,7 @@ ConcentrationBySpec = data |>
   ylab("Nitrogen Concentration in mg/L (logged)") +
   labs(title = "Nitrogen Concentration by State Regulatory Specification", color = "Regulatory\nSpecification") +
   theme(plot.title = element_text(hjust = 0.5)) ##Center title
+
 
 ##See if there are any systematic differences across the treatment horizon
 ConcentrationAcrossReg = dataWithoutCat |> 

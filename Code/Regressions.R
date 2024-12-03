@@ -19,7 +19,7 @@ stationStateWQ = stationStateWQ |>
          firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
          currentRegTreated = ifelse(year >= currentRegYear, 1, 0),
          currentRegTreated = ifelse(is.na(currentRegTreated), 0, currentRegTreated),
-         lnMeasureValue = log(ResultMeasureValue +1),
+         lnMeasureValue = log(ResultMeasureValue + .01), ##Many results are 0
          relYearCurrent = ifelse(is.na(currentRegYear), Inf, year - currentRegYear),
          regAmountSpecified = ifelse((currentRegTreated == 1 & Specification != "not specified"), 1, 0),
          regAmountSpecified = ifelse(is.na(regAmountSpecified), 0, regAmountSpecified),
@@ -75,7 +75,7 @@ nitrogenRelYearGard = did2s(stationNitrogenWQ, yname = "lnMeasureValue",
                   + month + USDA.Farm.Production.Region^year,
                   second_stage = ~i(relYearCurrent, ref= c(-1, Inf)), treatment = "currentRegTreated",
                   cluster_var = "MonitoringLocationIdentifier")
-iplot(stationFirstRegGard)
+iplot(nitrogenRelYearGard)
 
 
 
