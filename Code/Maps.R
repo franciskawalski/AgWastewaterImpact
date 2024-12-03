@@ -1,8 +1,6 @@
 library(tidyverse)
 library(sf)
 library(tmap)
-library(RColorBrewer)
-
 states = st_read("../Data/Clean/States_shape/cb_2018_us_state_500k.shp") |> 
   st_make_valid()
 
@@ -28,24 +26,19 @@ statesWithNitrogen = states |>
   filter(!is.na(avgStateNitrogen))
 
 tm_shape(states) + 
-  tm_fill("hasReg", palette = c("1" = "royalblue", "0" = "grey"),
-          title = "Has Wastewater \nRegulation") +
+  tm_fill("hasReg", palette = c("1" = "dodgerblue4", "0" = "azure"),
+          title = "Has Wastewater \nRegulation", labels = c("No", "Yes")) +
   tm_borders(col = "black") + 
   tm_layout(title = "States with Agrictultural Wasterwater Reuse Regulations",
             title.position = c("center", "top"),
             inner.margins = c(0.01, 0.01, .125, 0.01))
 
-stateNitrogenWithReg = statesWithNitrogen |> 
-  filter(hasReg == "1")
-
-stateNitrogenWOReg = statesWithNitrogen |> 
-  filter(hasReg == "0")
-
-breaks = c(0,0.5, 1, 2, 4, 8)
-tm_shape(states)  + tm_borders(col = "black") +
-  tm_shape(stateNitrogenWithReg) + tm_fill(col = "avgStateNitrogen", breaks = breaks, palette = c("#bef7ff", "#a0dcff", "#82c2ff", "#63a7ff", "#458cff"), alpha = .8) +
-  tm_shape(stateNitrogenWOReg)+ tm_fill(col = "avgStateNitrogen", breaks = breaks, palette = "Greys", alpha = .8) 
-  
+breaks = c(0, .5, 1, 2, 4, 6)
 tm_shape(states) + tm_borders(col = "black") + 
-  tm_shape(statesWithNitrogen) + tm_fill(col = "avgStateNitrogen", breaks = breaks, palette = "Blues", alpha = .8)
+  tm_shape(statesWithNitrogen) + tm_fill(col = "avgStateNitrogen",  palette = "Blues", breaks = breaks, alpha = .8,
+                                         title = "Avg. mg/L of\nNitrogen") +
+  tm_layout(title = "Avgerage Nitrogen Sample Concentrations 2008-2012",
+            title.position = c("center", "top"),
+            legend.position = c("right", "bottom"),
+            inner.margins = c(0.01, 0.01, .125, 0.01))
 
