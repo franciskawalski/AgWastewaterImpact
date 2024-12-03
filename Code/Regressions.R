@@ -3,6 +3,11 @@ library(fixest)
 library(did2s)
 library(DescTools)
 
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 ##Load data
 #mnthAvgStateWQ = read_csv("../Data/Clean/cleanMergedData_StateAvg.csv") 
 stationStateWQ = read.csv("../Data/Clean/cleanMergedData_StationLevel.csv", header = T) |> 
@@ -11,7 +16,7 @@ stationStateWQ = read.csv("../Data/Clean/cleanMergedData_StationLevel.csv", head
 stationStateWQNoCat = stationStateWQ |> 
   group_by(month, year, USDA.Farm.Production.Region, firstRegYear, currentRegYear, state,
            MonitoringLocationIdentifier, ResultMeasureValue, CharacteristicName, MethodSpeciationName ) |> 
-  summarise(Specification = Mode(Specification))
+  summarise(Specification = mode(Specification))
 
 
 ##Add indicators for treatment
