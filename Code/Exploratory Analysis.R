@@ -22,7 +22,7 @@ dataWithoutCat = data |>
   group_by(year, month, monthYear, state, CharacteristicName, hasStateReg, firstRegYear, currentRegYear, USDARegion, MonitoringLocationIdentifier) |> 
   summarise(avgValue = mean(ResultMeasureValue))
 
-write.csv(dataWithoutCat, "stateAvgWithoutCat.csv")
+write.csv(dataWithoutCat, "stationLevelWithoutCat.csv")
 
 ##See the differences between states that do and do not have regs
 RegVsNot = ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
