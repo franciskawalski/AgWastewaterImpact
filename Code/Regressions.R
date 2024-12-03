@@ -1,20 +1,27 @@
 library(tidyverse)
 library(fixest)
 library(did2s)
+library(DescTools)
 
 ##Load data
 #mnthAvgStateWQ = read_csv("../Data/Clean/cleanMergedData_StateAvg.csv") 
-stationStateWQ = read.csv("../Data/Clean/cleanMergedData_StationLevel.csv", header = T)
+stationStateWQ = read.csv("../Data/Clean/cleanMergedData_StationLevel.csv", header = T) |> 
+  filter(ResultMeasureValue <= 100)
+
+stationStateWQNoCat = stationStateWQ |> 
+  group_by(month, year, USDA.Farm.Production.Region, firstRegYear, currentRegYear, state,
+           MonitoringLocationIdentifier, ResultMeasureValue, CharacteristicName, MethodSpeciationName ) |> 
+  summarise(Specification = Mode(Specification))
 
 
 ##Add indicators for treatment
-mnthAvgStateWQ = mnthAvgStateWQ |> 
-  mutate(firstRegTreated = ifelse(year >= firstRegYear, 1, 0),
-         firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
-         currentRegTreated = ifelse(year >= currentRegYear, 1, 0),
-         currentRegTreated = ifelse(is.na(currentRegTreated), 0, currentRegTreated))
+# mnthAvgStateWQ = mnthAvgStateWQ |> 
+#   mutate(firstRegTreated = ifelse(year >= firstRegYear, 1, 0),
+#          firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
+#          currentRegTreated = ifelse(year >= currentRegYear, 1, 0),
+#          currentRegTreated = ifelse(is.na(currentRegTreated), 0, currentRegTreated))
 
-stationStateWQ = stationStateWQ |> 
+stationStateWQ = stationStateWQNoCat |> 
   mutate(firstRegTreated = ifelse(year >= firstRegYear, 1, 0),
          firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
          currentRegTreated = ifelse(year >= currentRegYear, 1, 0),
@@ -26,7 +33,7 @@ stationStateWQ = stationStateWQ |>
          regAmountNotSpecified = ifelse(currentRegTreated == 1 & Specification == "not specified", 1, 0),
          regAmountNotSpecified = ifelse(is.na(regAmountNotSpecified), 0, regAmountNotSpecified))
 
-##Get data by chem tested 
+##Seperate data by chem tested 
 stationNitrogenWQ = stationStateWQ |> 
   filter(CharacteristicName == "Nitrogen")
 
@@ -53,7 +60,7 @@ regImpactNitrogen = feols(lnMeasureValue ~  currentRegTreated |
 summary(regImpactNitrogen)
 
 ##Regressions by regulation type
-regTypeImpactNitrate = feols(lnMeasureValue ~  regAmountSpecified + regAmountNotSpecified | 
+regTypeImpactNitrate = feols(lnMeasureValue ~  regAmountSpecified  | 
                                state + year + MonitoringLocationIdentifier + month + USDA.Farm.Production.Region^year, 
                              data = stationNitrateWQ, cluster = "MonitoringLocationIdentifier")
 summary(regTypeImpactNitrate)
