@@ -1,5 +1,7 @@
 library(tidyverse)
 library(fixest)
+library(devtools)
+install_github("kylebutts/did2s")
 library(did2s)
 library(DescTools)
 
@@ -83,11 +85,12 @@ summary(regTypeImpactNitrogen)
 
 ##Gardner 2-Stage Regressions
 nitrogenRelYearGard = did2s(stationNitrogenWQ, yname = "lnMeasureValue", 
-                  first_stage = ~  0 | state + year + MonitoringLocationIdentifier 
-                  + month + USDA.Farm.Production.Region^year,
+                  first_stage = ~  0 | state + year + MonitoringLocationIdentifier + month + USDA.Farm.Production.Region^year,
                   second_stage = ~i(relYearCurrent, ref= c(-1, Inf)), treatment = "currentRegTreated",
                   cluster_var = "MonitoringLocationIdentifier")
-iplot(nitrogenRelYearGard)
+iplot(nitrogenRelYearGard, ref.line = -.5, grid = F, xlab = "Year Relative to Most Recent Regulation",
+      ylab = "Pct Change in Nitrogen Concentration", xlim = c(-12,12),
+      main = "Effect of Year Relative to Current State Wastewater \nRegulation on Nitrogren Concentrations")
 
 
 
