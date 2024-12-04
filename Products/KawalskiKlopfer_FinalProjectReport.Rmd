@@ -7,10 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(stargazer)
-library(fixest)
-library(modelsummary)
 ```
 
 ## Background
@@ -21,11 +17,11 @@ Solutions for water scarcity, therefore, are very important. One solution is the
 
 Among these, nutrient pollution is especially concerning. Nutrient pollution is a type of water pollution consisting of excess compounds of nitrogen and phosphorus. Per the EPA, nutrient pollution is "One of America's most widespread, costly, and challenging environmental problems," (EPA, 2024). The EPA further notes that excess nitrogen pollution can be harmful to human health and wildlife populations: excess nitrogen in bodies of surface waters can cause algae blooms, which can release toxins harmful both to humans and wildlife. Nitrates (a nitrogen compound) can enter drinking water supplies, and can be harmful to humans–or fatal to infants–even in low levels. Mosheim and Sickles (2021) find that nutrient pollution can increase the production costs of water utilities, which is substantiated by EPA findings of water production costs increasing from ten cents per gallon treated up to four dollars per gallon with the installation of a nitrate reduction system (EPA, 2024).
 
-This issue of nutrient pollution–especially nitrogen pollution–have become an issue of great concern to regulators in recent years. As a result, 28 states currently have regulations in place on quality and/or usage of reused water for irrigation of crops. Primarily, these regulations affect treated municipal wastewater–a common source of reused wastewater (EPA, 2024). However, little research on how effective these policies are is present in existing literature.
+This issue of nutrient pollution–especially nitrogen pollution–has become an issue of great concern to regulators in recent years. As a result, 28 states currently have regulations in place on quality and/or usage of reused water for irrigation of crops. Primarily, these regulations affect treated municipal wastewater–a common source of reused wastewater (EPA, 2024). However, little research on how effective these policies are is present in existing literature. Therefore, we seek to analyze how state-level wastewater reuse regulations affect nitrogen concentrations in bodies of water within those states.
 
 ## Data
 
-Our analysis aims to shed light on this trade-off between a sustainable water supply and the reduction of nutrient pollution. We use panel data from several sources to conduct our analysis. Water quality data is collected from USGS and EPA water surveys compiled by the National Water Quality Monitoring Council. This data includes concentrations of nitrogen and nitrogen compounds in various bodies of surface and groundwater in milligrams/liter. Nitrogen is one of the most common aspects of water quality that states have regulations on , so we use this as our primary analysis. These observations were primarily identified by geographic coordinates, which were mapped to U.S. states using GIS data from the Census Bureau. Some observations that did not include coordinates were linked to states using the USGS state-level office that collected the data. This data covers years from 2000 through 2023, as that time period contains most water reuse quality regulations passed by states with such regulations.
+We use panel data from several sources to conduct our analysis. Water quality data is collected from USGS and EPA water surveys compiled by the National Water Quality Monitoring Council. This data includes concentrations of nitrogen and nitrogen compounds in various bodies of surface and groundwater in milligrams/liter. Nitrogen is one of the most common aspects of water quality that states have regulations on, so we use this as our primary analysis. These observations were primarily identified by geographic coordinates, which were mapped to U.S. states using GIS data from the Census Bureau. Some observations that did not include coordinates were linked to states using the USGS state-level office that collected the data. This data covers years from 2000 through 2023, as that time period contains most water reuse quality regulations passed by states with such regulations.
 
 The nature and exact specifications of each state's water reuse quality regulations was collected from the EPA's Regulations and End-Use Specifications Explorer (REUSExplorer). We focused primarily on the concentration regulations on nitrogen and nitrogen compounds. The concentrations are primarily measured in milligrams per liter, both in the state regulations and the water quality data. The year each of these regulations was registered with the EPA (or in cases where this information is not known, the most recent state-level regulation) was collected from both the EPA's REUSExplorer and each state's respective administrative code. For year of treatment, we used the year the EPA-recognized policy was established, though we also included the year in which each state first regulated wastewater reuse.
 
@@ -166,31 +162,33 @@ dataWithoutCat |>
 
 ## Methods
 
-Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. Our first method was a simple naive OLS regression, with the estimating equation
+Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. The dependent variable of each model was log-transformed. Our first method was a simple naive OLS regression. While lacking in complexity, this model with its numerous fixed effects manages to capture a substantial amount of variance in water quality and identifies effects of legislation with some degree of detail due to the individual water quality monitor level outcomes. It was estimated with the equation:
 
 $Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
 
-Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station, *Year* is the year each observation was recorded, *Month* was the month each observation was recorded, and *Region* is the USDA Farm Production Region.
+Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station *i* where each observation was taken, *Year* is the year *y* each observation was recorded, *Month* was the month *m* each observation was recorded, and *Region* is the USDA Farm Production Region *r* where each observation was taken.
 
-Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. This was estimated with the equation
+Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. We condcuted this analysis to evaluate whether or not intensity of treatment has any effect on nitrogen concentrations. This model was estimated with the equation:
 
-\$ Nitrogen\_{xzsiymr} = \beta\*1AmountSpecified\*{xsy} + \beta2NotSpecified\_{zsy} + \beta\_3State_s + \beta4Station_i + beta_5Year_y + \beta\_6Month_m + \beta7Region_r \$
+$Nitrogen_{siymr} = \beta1AmountSpecified{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r$
 
-Where x is the regulated amount of nitrogen specified by a state regulation, z is whether or not a state specified an amount in their regulation,
+Where *Nitrogen* is the percent change in the concentration of nitrogen at a specific monitoring station, *AmountSpecified* is the amount of nitrogen permitted in reused wastewater by a state regulation *NotSpecified* is an indicator variable equal to 1 if a state regulation did not specify an allowable nitrogen amount, *State* is the state *s* each observation was taken in, *Station* is the individual water quality monitoring station *i* at which each measurement was taken, *Year* is the year *y* each observation was taken in, *Month* is the month *m* each observation was taken in, and *Region* is the USDA Farm Production Region *r* each observation was taken in.
+
+Our final model was a Gardner difference-in-differences model. Recent literature has suggested that staggered treatment difference in differences models can have biased estimates. As a result, we utilized this Gardner model in an attempt to account for any potential bias.
 
 ## Results
 
-Our naive regression of
+Our naive regression indicated that the presence of regulations on wastewater reuse is correlated with a reduced nitrogen concentrations being reduced by 2.4%. With a standard error of 0.014, this result is statistically significant at the 10% level. This reduction indicates that regulations on the quality of reused wastewater could be effective at reducing nitrogen pollution. If we were to lend a causal inference to this result, the primary difference would be the assumption that regulations directly cause this reduction in nitrogen concentrations. This assumption is unlikely to hold, as a number of other factors not present in the model could also be affecting this data generating process. One such example is the possibility of other effects that occur simultaneously with treatment. Legislation rarely happens in isolated instances, and it is possible that states set out with a goal to reduce pollution and simultaneously enact several policies to that end. For example, if a state were to enact a policy limiting use of fertilizer at the same time as they regulated wastewater reuse, our estimate would overstate the effects of wastewater reuse regulations.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'}
-data = read_csv("../Data/Clean/stationDataWithIndicators.csv") |> 
-  filter(CharacteristicName == "Nitrogen")
+Other problems could arise from intensity of treatment, as not all states passed identical regulations. Looking at distinct types descriptively, we find that states regulating–but not specifying–allowable amounts of nitrogen in reused wastewater are correlated with reductions of nitrogen concentrations of 3.5%. With a standard error of 0.012, this result is significant at the 1% level. States that did specify allowable amounts of nitrogen in reused wastewater were correlated with an increase in nitrogen concentrations of 3.3%, though this result was not statistically significant. This result trends in the opposite direction from what was expected. Combined with its lack of significance, it is evident that other factors influence this data generating process that are not captured by our model. Therefore, we are unable to determine causality from this estimation.
 
-regImpactNitrogen = feols(lnMeasureValue ~  currentRegTreated | state  + MonitoringLocationIdentifier + month + USDA.Farm.Production.Region^year, cluster =  "MonitoringLocationIdentifier", data = data)
+While bias from outside sources is likely, it is also very possible that the estimates used above have internal bias from the models used. To mitigate this, we used a Gardner differences in differences model to estimate the effects. The Gardner model finds a statistically significant effect similar in size to our other models. However, the results are quite noisy, with a substantial, high-variance increase in the first three years post treatment, subsequent years of decreased nitrogen concentrations with small variances, and then more high-variance increases in nitrogen concentrations after 10 years. Here again, we hesitate to assign causality, despite the statistically significant result. This is because the noise within our results indicate that other factors not included within our model may be influencing the results in ways we cannot predict.
 
-modelsummary(regImpactNitrogen, stars = T, output = "output.html")
-htmltools::includeHTML("output.html")
-```
+![Figure 1](images/GardnerPlot.png)
+
+## AI Use Summary
+
+ChatGPT was used to assist in coding at several points–primarily to aid in working with spatial objects encountered prior to their introduction in ECNS560. ChatGPT was also used in small capacities at several other points to advise in complex coding, as well as generating tables. No AI was used in the writing of the text in this document.
 
 ## Works Cited
 
