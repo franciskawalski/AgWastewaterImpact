@@ -5,29 +5,23 @@ install_github("kylebutts/did2s")
 library(did2s)
 library(DescTools)
 
+##Define a mode function
 mode <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
 }
 
 ##Load data
-#mnthAvgStateWQ = read_csv("../Data/Clean/cleanMergedData_StateAvg.csv") 
 stationStateWQ = read.csv("../Data/Clean/cleanMergedData_StationLevel.csv", header = T) |> 
   filter(ResultMeasureValue <= 100)
 
+##Remove repeated data from regulatory categories
 stationStateWQNoCat = stationStateWQ |> 
   group_by(month, year, USDA.Farm.Production.Region, firstRegYear, currentRegYear, state,
            MonitoringLocationIdentifier, ResultMeasureValue, CharacteristicName, MethodSpeciationName ) |> 
   summarise(Specification = mode(Specification))
 
-
-##Add indicators for treatment
-# mnthAvgStateWQ = mnthAvgStateWQ |> 
-#   mutate(firstRegTreated = ifelse(year >= firstRegYear, 1, 0),
-#          firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
-#          currentRegTreated = ifelse(year >= currentRegYear, 1, 0),
-#          currentRegTreated = ifelse(is.na(currentRegTreated), 0, currentRegTreated))
-
+##Add indicators
 stationStateWQ = stationStateWQNoCat |> 
   mutate(firstRegTreated = ifelse(year >= firstRegYear, 1, 0),
          firstRegTreated = ifelse(is.na(firstRegTreated), 0, firstRegTreated),
