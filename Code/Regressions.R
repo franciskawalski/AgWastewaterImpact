@@ -40,6 +40,8 @@ stationStateWQ = stationStateWQNoCat |>
          regAmountNotSpecified = ifelse(currentRegTreated == 1 & Specification == "not specified", 1, 0),
          regAmountNotSpecified = ifelse(is.na(regAmountNotSpecified), 0, regAmountNotSpecified))
 
+write.csv(stationStateWQ, "stationDataWithIndicators.csv")
+
 ##Seperate data by chem tested 
 stationNitrogenWQ = stationStateWQ |> 
   filter(CharacteristicName == "Nitrogen")

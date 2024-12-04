@@ -7,6 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stargazer)
+library(fixest)
+library(modelsummary)
 ```
 
 ## Background
@@ -33,7 +37,7 @@ Some extreme values became apparent during the visualization process. Some state
 
 ## Visualizations
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") 
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   
@@ -46,7 +50,7 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
 
 We initially examined the distributions of nitrogen concentration for states with and without regulations on nitrogen levels in reused wastewater. This distribution is very right skewed, which led to our decision to log-transform the average nitrogen level variable.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") 
 ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +   
   geom_histogram(position = "identity", alpha = .5, bins  = 50) +   
@@ -60,7 +64,7 @@ ggplot(dataWithoutCat, aes(x = avgValue, fill = hasStateReg)) +
 
 The two log-transformed distributions show similar modes, though states with regulations trend towards higher concentrations. This could imply selection bias, as states with preexisting higher concentrations of nitrogen may be more likely to regulate its levels.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv")   
 dataWithoutCat |>    
   filter(CharacteristicName == "Nitrogen") |>    
@@ -79,7 +83,7 @@ dataWithoutCat |>
 
 We were also interested if there were stochastic trends in nitrogen concentration for states with and without regulations on nitrogen concentration in reused wastewater. States with regulations have higher, more consistent values of wastewater on average. Unregulated states have lower levels of nitrogen concentration, though concentrations do appear to be increasing slightly. The spike in 2015 in unregulated states is from New Hampshire. They report consistently high levels of nitrogen in their water through the year, so we believe that the data is correct. We plan to exclude this observation because we do not believe that it reflect of the data generating process we are trying to model.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 data = read_csv("../Data/Clean/cleanMergedData_StationLevel.csv") |>    
   select(-`...1`)  |>    
   rename(USDARegion = `USDA Farm Production Region`)   
@@ -104,7 +108,7 @@ data |>
 
 Our next figure shows how concentration varies over time by regulatory specification. States specify maximum allowed nitrogen concentrations differently. States specifying an "Agronomic Rate" specify acceptable concentrations depending on the need for a specific crop and soil type. "Specified Amounts" are specific, measured quantities of nitrogen that are acceptable. States without a specified amount measure, but do not restrict, concentrations of nitrogen in reused wastewater. There doesn't appear to be any significant difference between the nitrogen concentrations in these states. There is a small downward trend in recent years in states that specify a specific amount, however this sample is small so results are not robust.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(state != "NH")  
 dataWithoutCat |>    
@@ -126,7 +130,7 @@ dataWithoutCat |>
 
 We were also curious how individual observations of nitrogen concentrations changed relative to when each observation's state enacted the EPA-registered restriction on water quality. Overall trends exhibit minimal change in average concentrations during treatment.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(!is.na(USDARegion))  
 
@@ -144,7 +148,7 @@ dataWithoutCat |>
 
 Our final figure shows density of observations for different nitrogen concentrations by region. Concentration distributions change substantially by region. Regions of note (shown below) include the Corn Belt, which contains a broad distribution of concentrations, and the Appalachian region with a bi modal distribution containing peaks at both low and moderately high concentration values.
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'} 
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 dataWithoutCat = read_csv("../Data/Clean/stationLevelWithoutCat.csv") |>    
   filter(USDARegion == "Appalachian" | USDARegion == "Corn Belt")  
 
@@ -170,13 +174,23 @@ Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is wh
 
 Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. This was estimated with the equation
 
-$ Nitrogen_{xzsiymr} = \beta_1AmountSpecified_{xsy} + \beta2NotSpecified_{zsy} + \beta_3State_s + \beta4Station_i + beta_5Year_y + \beta_6Month_m + \beta7Region_r $  
+\$ Nitrogen\_{xzsiymr} = \beta\*1AmountSpecified\*{xsy} + \beta2NotSpecified\_{zsy} + \beta\_3State_s + \beta4Station_i + beta_5Year_y + \beta\_6Month_m + \beta7Region_r \$
 
 Where x is the regulated amount of nitrogen specified by a state regulation, z is whether or not a state specified an amount in their regulation,
 
 ## Results
 
 Our naive regression of
+
+```{r, echo = F, warning = F, message = F, fig.align = 'center'}
+data = read_csv("../Data/Clean/stationDataWithIndicators.csv") |> 
+  filter(CharacteristicName == "Nitrogen")
+
+regImpactNitrogen = feols(lnMeasureValue ~  currentRegTreated | state  + MonitoringLocationIdentifier + month + USDA.Farm.Production.Region^year, cluster =  "MonitoringLocationIdentifier", data = data)
+
+modelsummary(regImpactNitrogen, stars = T, output = "output.html")
+htmltools::includeHTML("output.html")
+```
 
 ## Works Cited
 
