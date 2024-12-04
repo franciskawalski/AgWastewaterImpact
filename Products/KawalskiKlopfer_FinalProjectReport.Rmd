@@ -183,6 +183,8 @@ dataWithoutCat |>
 
 ## Methods
 
+We evaluate the effects of current state-level policies on nitrogen concentration limits within reused wastewater. The most recent regulations are used due to data constraints. Some states, such as California, have had restrictions on the quality of reused water for well over a century. Information on regulations such as these is very limited, and quality data on nitrogen concentrations is also much more recent. While this fails to capture true changes in water quality regulations over time, it does allow us to develop a general understanding of the effectiveness of current regulations compared to those existing prior.
+
 Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. The dependent variable of each model was log-transformed. Our first method was a simple naive OLS regression. While lacking in complexity, this model with its numerous fixed effects manages to capture a substantial amount of variance in water quality and identifies effects of legislation with some degree of detail due to the individual water quality monitor level outcomes. It was estimated with the equation:
 
 $Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
