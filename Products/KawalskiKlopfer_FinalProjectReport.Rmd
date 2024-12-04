@@ -219,7 +219,7 @@ Other problems could arise from intensity of treatment, as not all states passed
 
 While bias from outside sources is likely, it is also very possible that the estimates used above have internal bias from the models used. To mitigate this, we used a Gardner differences in differences model to estimate the effects. The Gardner model finds a statistically significant effect similar in size to our other models. However, the results are quite noisy, with a substantial, high-variance increase in the first three years post treatment, subsequent years of decreased nitrogen concentrations with small variances, and then more high-variance increases in nitrogen concentrations after 10 years. Here again, we hesitate to assign causality, despite the statistically significant result. This is because the noise within our results indicate that other factors not included within our model may be influencing the results in ways we cannot predict.
 
-![Figure 1](images/GardnerPlot.png)
+![](images/GardnerPlot.png)
 
 ## Conclusion
 
