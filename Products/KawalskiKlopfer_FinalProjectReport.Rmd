@@ -1,7 +1,7 @@
 ---
 title: "Impact of Agricultural Wastewater Reuse on Water Quality"
 author: "Grant Klopfer, Francis Kawalski"
-date: "2024-12-03"
+date: "2024-12-04"
 output: html_document
 ---
 
@@ -26,7 +26,7 @@ Among these, nutrient pollution is especially concerning. Nutrient pollution is 
 
 ```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 ##Run file that makes the maps and print
-source("../Code/Maps.R", local = knitr::knit_global())
+invisible(capture.output(source("../Code/Maps.R", local = knitr::knit_global(), echo = F, print.eval = F, verbose = F)))
 stateNitrMap
 ```
 
@@ -34,21 +34,20 @@ This issue of nutrient pollution–especially nitrogen pollution–has become an
 
 ```{r, echo = F, warning = F, message = F, fig.align = 'center'}
 ##Run file that makes the maps and print
-source("../Code/Maps.R", local = knitr::knit_global())
+invisible(capture.output(source("../Code/Maps.R", local = knitr::knit_global(), echo = F, print.eval = F, verbose = F)))
 stateRegMap
 ```
 
-This map depicts the average concentration levels of nitrogen in water sampled in each state from 2008-2012. Data in these years was not available for North Dakota and Wyoming.
 
 ## Data
 
 We use panel data from several sources to conduct our analysis. Water quality data is collected from USGS and EPA water surveys compiled by the National Water Quality Monitoring Council. This data includes concentrations of nitrogen and nitrogen compounds in various bodies of surface and groundwater in milligrams/liter. Nitrogen is one of the most common aspects of water quality that states have regulations on, so we use this as our primary analysis. These observations were primarily identified by geographic coordinates, which were mapped to U.S. states using GIS data from the Census Bureau. Some observations that did not include coordinates were linked to states using the USGS state-level office that collected the data. This data covers years from 2000 through 2023, as that time period contains most water reuse quality regulations passed by states with such regulations.
 
-The nature and exact specifications of each state's water reuse quality regulations was scraped from the EPA's website of Regulations and End-Use Specifications Explorer (REUSExplorer). We focused primarily on the concentration regulations on nitrogen and nitrogen compounds. The concentrations are primarily measured in milligrams per liter, both in the state regulations and the water quality data. The year each of these regulations was registered with the EPA (or in cases where this information is not known, the most recent state-level regulation) was collected from both the EPA's REUSExplorer and each state's respective administrative code. For year of treatment, we used the year the EPA-recognized policy was established, though we also included the year in which each state first regulated wastewater reuse.
+The nature and exact specifications of each state's water reuse quality regulations was scraped from the EPA's website of Regulations and End-Use Specifications Explorer (REUSExplorer). We focused primarily on the concentration regulations on nitrogen and nitrogen compounds. The concentrations are primarily measured in milligrams per liter, both in the state regulations and the water quality data. The year each of these regulations was registered with the EPA (or in cases where this information is not known, the most recent state-level regulation) was collected from both the EPA's REUSExplorer and each state's respective administrative code. For the year of treatment, we used the year the EPA-recognized policy was established. Many states had regulations prior to their most recent regulation, however we only have data  on the details of the most recent regulation.
 
 To capture any climate trends that may impact the amount of nitrogen used, we have also included data from the USDA Farm Production Regions. These regions are defined by state borders and capture similarity of crops, which is largely determined by climate.
 
-In the final dataset, the unit of analysis is called *avgvalue*, and this variable contains the average quantity of a given nitrogen compound for each state and year combination. Our analysis looks primarily at nitrogen (as opposed to other compounds thereof) as it is the most consistently regulated by states. The distribution of average value of nitrogen is right-skewed, so a log transformation was applied to normalize the distribution and ease of interpretation.
+In the final dataset, the unit of analysis is the measurement of mg/L of nitrogen. Our analysis looks primarily at nitrogen (as opposed to other compounds thereof) as it is the most consistently regulated by states and sampled. The distribution of average value of nitrogen is right-skewed, so a log transformation was applied to normalize the distribution and ease of interpretation.
 
 Some extreme values became apparent during the visualization process. Some state wastewater reuse regulations were first passed long before the time-frame covered by our data (such as California's 1918 regulation). When we analyze average water quality across states relative to the year of treatment, we bin all observations over 10 years before and after the event. Additionally, due to fundamental differences in region, crop, and climate we decided to exclude Alaska and Hawaii from the analysis.
 
@@ -183,23 +182,25 @@ dataWithoutCat |>
 
 ## Methods
 
-Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. The dependent variable of each model was log-transformed. Our first method was a difference in differences regression. While lacking in complexity, this model with its numerous fixed effects manages to capture a substantial amount of variance in water quality and identifies effects of legislation with some degree of detail due to the individual water quality monitor level outcomes. It was estimated with the equation:
+We evaluate the effects of current state-level policies on nitrogen concentration limits within reused wastewater. The most recent regulations are used due to data constraints. Some states, such as California, have had restrictions on the quality of reused water for well over a century. Information on regulations such as these is very limited, and quality data on nitrogen concentrations is also much more recent. While this fails to capture true changes in water quality regulations over time, it does allow us to develop a general understanding of the effectiveness of current regulations compared to those existing prior. If a state is already regulating the amount of nitrogen in wastewater prior to their most recent regulation, then our results would be positively biased and we would examine less extreme effects from the treatment analyzed. 
+
+Several methods were used to estimate the effects of wastewater reuse regulations on nitrogen concentrations in bodies of water; all of these were conducted at the sub-state, individual monitoring station level. The dependent variable of each model was log-transformed. Our first method was a difference-in-differences regression. While lacking in complexity, this model with its numerous fixed effects manages to capture a substantial amount of variance in water quality and identifies effects of legislation with some degree of detail due to the individual water quality monitor level outcomes. It was estimated with the equation:
 
 $Nitrogen_{siymr} = \beta_1Regulation_{sy} + \beta_2Station_{i} + \beta_3Year_y + \beta_4Month_m + \beta_5Region_r$
 
-Where *Nitrogen* is percent change in nitrogen concentration, *Regulation* is whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station *i* where each observation was taken, *Year* is the year *y* each observation was recorded, *Month* was the month *m* each observation was recorded, and *Region* is the USDA Farm Production Region *r* where each observation was taken.
+Where *Nitrogen* is the log-transformed sample nitrogen concentration, *Regulation* is an indicator of whether or not a water quality regulation was in place in that state at that time, *Station* is the individual water quality monitoring station *i* where each observation was taken, *Year* is the year *y* each observation was recorded, *Month* was the month *m* each observation was recorded, and *Region* is the USDA Farm Production Region *r* where each observation was taken.
 
-Our second method was a more in-depth linear regression that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. We condcuted this analysis to evaluate whether or not intensity of treatment has any effect on nitrogen concentrations. This model was estimated with the equation:
+Our second method was another application of the difference-in-differences model that analyzed changes in nitrogen concentration as a result of different specifications for nitrogen limits imposed by each state. We conducted this analysis to evaluate whether or not intensity of treatment has any effect on nitrogen concentrations. This model was estimated with the equation:
 
-$Nitrogen_{siymr} = \beta1AmountSpecified{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r$
+$Nitrogen_{siymr} = \beta1AmountSpecified_{sy} + \beta2NotSpecified_{sy} + \beta_3State_s + \beta4Station_i + \beta_5Year_y + \beta_6Month_m + \beta7Region_r$
 
-Where *Nitrogen* is the percent change in the concentration of nitrogen at a specific monitoring station, *AmountSpecified* is the amount of nitrogen permitted in reused wastewater by a state regulation *NotSpecified* is an indicator variable equal to 1 if a state regulation did not specify an allowable nitrogen amount, *State* is the state *s* each observation was taken in, *Station* is the individual water quality monitoring station *i* at which each measurement was taken, *Year* is the year *y* each observation was taken in, *Month* is the month *m* each observation was taken in, and *Region* is the USDA Farm Production Region *r* each observation was taken in.
+Where *Nitrogen* is the log-transformed concentration of nitrogen at a specific monitoring station, *AmountSpecified* is an indicator if a state regulation specifies the maximum allowable nitrogen concentration in applied wastewater, *NotSpecified* is an indicator variable equal to 1 if a state regulation did not specify an allowable nitrogen amount, *State* is the state *s* each observation was taken in, *Station* is the individual water quality monitoring station *i* at which each measurement was taken, *Year* is the year *y* each observation was taken in, *Month* is the month *m* each observation was taken in, and *Region* is the USDA Farm Production Region *r* each observation was taken in.
 
-Our final model was a Gardner difference-in-differences model. Recent literature has suggested that staggered treatment difference in differences models can have biased estimates. As a result, we utilized this Gardner (2020) two-stage model in an attempt to account for any potential bias.
+Our final model was a Gardner two stage difference-in-differences model. Recent literature has suggested that staggered treatment difference in differences models can have biased estimates. As a result, we utilized this Gardner (2020) two-stage model in an attempt to account for any potential bias.
 
 ## Results
 
-```{r, echo = F, warning = F, message = F, fig.align = 'center'}
+```{r, echo = F, warning = F, message = F}
 data = read_csv("../Data/Clean/stationDataWithIndicators.csv") |> 
   filter(CharacteristicName == "Nitrogen") 
 data = data |> 
