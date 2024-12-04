@@ -2,7 +2,7 @@ library(tidyverse)
 
 setwd("../Data/Clean")
 
-##Import all the datasets, remove some columns and rename so the merge is easy
+##Import all the datasets, remove some columns and rename so the merge is smooth
 stateRegs = read_csv("stateRegs.csv") |> 
   select(-c(`...1`, `...2`)) |> 
   rename(state = State) |> ##Match case for rest of data
@@ -35,6 +35,7 @@ mergedStateAvg = avgMthWaterData |>
 
 write.csv(mergedStateAvg, "cleanMergedData_StateAvg.csv")
 
+##Get station level merged data as well
 mergeredTotal = totalWaterData |> 
   left_join(stateRegs, by = "state", relationship = "many-to-many") |> 
   mutate(hasStateReg = !is.na(Specification)) |> 
