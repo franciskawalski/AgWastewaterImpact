@@ -221,6 +221,10 @@ While bias from outside sources is likely, it is also very possible that the est
 
 ![Figure 1](images/GardnerPlot.png)
 
+## Conclusion
+
+Overall, this analysis finds evidence that regulating wastewater reuse could bring about a significant decrease in nitrogen pollution, but is unable to effectively ascribe causality. Future research would be much more effective when controlling for other factors that may reduce nutrient pollution–such as fertilizer regulations and other agricultural practices. Additionally, this analysis fails to capture the dynamic nature of water. Accounting for water movement using watershed-based spatial analysis could better identify the true nature of pollution effects from reused wastewater. These facators together are especially important, as agricultural activity upstream from each monitoring station may not be constant–another potential source of noise in our analysis. Despite these challenges, it is important that research continues to evaluate the reuse of wastewater in agricultural irrigation, both as a potential solution to water scarcity and as a potential source of pollution. Understanding those trade-offs may be key to a future of sustainable agriculture.
+
 ## AI Use Summary
 
 ChatGPT was used to assist in coding at several points–primarily to aid in working with spatial objects encountered prior to their introduction in ECNS560. ChatGPT was also used in small capacities at several other points to advise in complex coding, as well as generating tables. No AI was used in the writing of the text in this document.
